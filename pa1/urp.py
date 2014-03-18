@@ -51,14 +51,12 @@ def most_binate(cubes):
     if len(binate) > 0:
         # Pick smallest index if there is a tie
         mostBinate = tuple(all_max(binate, key = lambda arg: arg[1][2]))
-        balancers = all_min(mostBinate, key = lambda arg: abs(arg[1][1] - arg[1][0]))
-
-        choice = min(map(operator.itemgetter(0), balancers))
+        ties = all_min(mostBinate, key = lambda arg: abs(arg[1][1] - arg[1][0]))
     else:
         # Again, pick smallest index if there is a tie
-        mostUnate = all_max(counts.items(), key = lambda arg: arg[1][2])
-        choice = min(map(operator.itemgetter(0), mostUnate))
+        ties = all_max(counts.items(), key = lambda arg: arg[1][2])
 
+    choice = min(map(operator.itemgetter(0), ties))
     return choice
 
 def generalCofactor(cubes, x):
@@ -91,7 +89,7 @@ def complement(cubes):
     if len(cubes) == 0:
         # Boolean equation "0"
         # Return a single don't care cube
-        result = tuple(tuple())
+        result = ((),)
     elif len(cubes) == 1:
         # One cube list, use demorgan's law
         result = complement_cube(cubes[0])
@@ -99,7 +97,7 @@ def complement(cubes):
     elif any(len(c) == 0 for c in cubes):
         # Boolean F = stuff + 1
         # Return empty cube list, or "1"
-        result = tuple()
+        result = ()
     else:
         x = most_binate(cubes)
         
