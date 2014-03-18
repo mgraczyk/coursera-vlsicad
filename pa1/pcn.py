@@ -14,7 +14,7 @@ def parse(filePath):
                 line = next(lines)
                 cubes[i] = tuple(islice(map(int, line.split()), 1, None))
 
-            return (numVars, cubes)
+            return (numVars, tuple(cubes))
 
         except Exception as error:
             raise AssertionError("Bad pcn file {}".format(filePath)) from error
@@ -22,7 +22,7 @@ def parse(filePath):
 def write(f, numVars, cubes):
     endl = "\n"
 
-    f.write(str(numVars))
+    f.write(str(max(max(map(abs, cube)) for cube in cubes)))
     f.write(endl)
     f.write(str(len(cubes)))
     f.write(endl)
