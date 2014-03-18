@@ -8,7 +8,7 @@ from collections import defaultdict
 from itertools import chain
 from itertools import starmap
 
-def compose(func_1, func_2, unpack=False):
+def compose(func_1, func_2):
     """
     compose(func_1, func_2, unpack=False) -> function
 
@@ -20,12 +20,9 @@ def compose(func_1, func_2, unpack=False):
     if not callable(func_2):
         raise TypeError("Second argument to compose must be callable")
 
-    if unpack:
-        def composition(*args, **kwargs):
-            return func_1(*func_2(*args, **kwargs))
-    else:
-        def composition(*args, **kwargs):
-            return func_1(func_2(*args, **kwargs))
+    def composition(*args, **kwargs):
+        return func_1(func_2(*args, **kwargs))
+
     return composition
 
 def complement_cube(cube):
@@ -80,9 +77,8 @@ def cubes_or(left, right):
 
 def cubes_and(left, right):
     allTerms = itertools.product(left, right)
-
-    return tuple(map(tuple, starmap(compose(set, chain),
-                allTerms)))
+    unique = tuple(tuple(set(chain(*t))) for t in allTerms)
+    return unique
 
 def complement(cubes):
     # check if F is simple enough to complement it directly and quit
@@ -93,7 +89,6 @@ def complement(cubes):
     elif len(cubes) == 1:
         # One cube list, use demorgan's law
         result = complement_cube(cubes[0])
-
     elif any(len(c) == 0 for c in cubes):
         # Boolean F = stuff + 1
         # Return empty cube list, or "1"
