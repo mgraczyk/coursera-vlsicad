@@ -26,9 +26,11 @@ def write(f, numVars, cubes):
     f.write(endl)
     f.write(str(len(cubes)))
     f.write(endl)
+    
+    cubes = tuple(set(tuple(sorted(cube, key=abs)) for cube in cubes))
 
     for cube in cubes:
-        f.write(' '.join(map(str, chain((len(cube),), sorted(cube, key=abs)))))
+        f.write(' '.join(map(str, chain((len(cube),), cube))))
         f.write(endl)
 
     f.write(endl)

@@ -76,9 +76,7 @@ def cubes_or(left, right):
     return tuple(set(chain(left, right)))
 
 def cubes_and(left, right):
-    allTerms = itertools.product(left, right)
-    unique = tuple(tuple(set(chain(*t))) for t in allTerms)
-    return unique
+    return complement(cubes_or(complement(left), complement(right)))
 
 def complement(cubes):
     # check if F is simple enough to complement it directly and quit
