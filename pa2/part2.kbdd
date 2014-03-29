@@ -1,0 +1,56 @@
+#HERE IS YOUR PARTIAL SCRIPT FOR PROGRAM 2 PART 2 
+# 
+# input variables – do NOT change this 
+boolean a b c d e f g h pri_in pri_N S2 S1 S0 
+# 
+# Here is the the correct logic function Y 
+eval Y a&c&!e&g&h + a&b&!h + d&e&!f&!g + !b&!c&d&e + a&!e&h + !c&!g 
+# 
+# YOU DO THIS: Define one programmable inverter block [8 points] 
+# (Signal input = pri_in Output = PRI 
+# Inversion control signal = pri_N) 
+eval PRI you-fill-this-part-in 
+# 
+# YOU DO THIS: Define Selection Logic [8 points] 
+# (3 select inputs, 8 PRI control outputs Ni) 
+eval N0 you-fill-this-part-in 
+eval N1 you-fill-this-part-in 
+eval N2 you-fill-this-part-in 
+eval N3 you-fill-this-part-in 
+eval N4 you-fill-this-part-in 
+eval N5 you-fill-this-part-in 
+eval N6 you-fill-this-part-in 
+eval N7 you-fill-this-part-in 
+# YOU DO THIS: Build a correct implementation of the Y network 
+# with 8 programmable inverters (PRIs) embedded in it. 
+# Call it Y_repair. 
+#Hint: Build this one one gate at a time from the diagram. 
+# 16 gates  16 lines of Evals. 
+# Embed each PRI in equation for gate output it inverts. 
+# 
+eval t1 you-fill-this-part-in 
+eval w0 you-fill-this-part-in 
+eval t2 you-fill-this-part-in 
+eval w1 you-fill-this-part-in 
+eval w2 you-fill-this-part-in 
+eval w3 you-fill-this-part-in 
+eval t3 you-fill-this-part-in 
+eval t4 you-fill-this-part-in 
+eval w4 you-fill-this-part-in 
+eval t5 you-fill-this-part-in 
+eval t6 you-fill-this-part-in 
+eval w5 you-fill-this-part-in 
+eval w6 you-fill-this-part-in 
+eval t7 you-fill-this-part-in 
+eval w7 you-fill-this-part-in 
+eval Y_repair you-fill-this-part-in 
+# 
+# Do EXNOR of the correct Y function and your Y_repair [16 points] 
+eval Z !(Y^Y_repair) 
+# 
+# YOU DO THIS: what is the right quantification to solve for repair? 
+quantify what-kind? Z_quantify Z you-fill-this-part-in-what-variables? 
+# 
+# what values of Si's make this function == 1? 
+satisfy Z_quantify 
+# You look at this result, and tell us how to repair network!
