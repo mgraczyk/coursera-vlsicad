@@ -1,0 +1,26 @@
+# Input variables
+boolean a[3..0] b[3..0] cin d[15..0]
+#
+eval c1 (a0 & b0) + (cin & b0) + (cin & a0)
+eval c2 (a1 & b1) + (c1 & b1)  +  (c1 & a1)
+eval c3 (a2 & b2) + (c2 & b2)  +  (c2 & a2)
+eval c4 (a3 & b3) + (c3 & b3)  +  (c3 & a3)
+#
+eval q1 a0 ^ b0
+eval q2 a1 ^ b1
+eval q3 a2 ^ b2
+eval q4 a3 ^ b3
+#
+mux 4 Select q1 q2 q3 q4 d[15..0]
+eval m0 c4
+eval m1 cin
+mux 1 cout Select m1 m0
+#
+adder 4 cout_gold sum[3..0] a[3..0] b[3..0] cin
+#
+eval Z !(cout ^ cout_gold)
+#
+quantify u Z_quantified Z a[3..0] b[3..0] cin
+#
+satisfy Z_quantified
+# Result: [0] or AND works
