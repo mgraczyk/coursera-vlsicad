@@ -34,10 +34,17 @@ def write_routes(path, netlist):
         for num, net in enumerate(netlist):
             f.write(str(num+1) + "\n")
 
-            # TODO: How do we store vias?
-            for cell in net:
-                f.write(" ".join(map(str, cell)))
-                f.write("\n")
+            if net:
+                lastLayer = net[0][0]
+                for cell in net:
+                    # Check for vias
+                    if lastLayer != cell[0]:
+                        f.write("3 {} {}".format(cell[1], cell[2]))
+                        f.write("\n")
+
+                    f.write(" ".join(map(str, cell)))
+                    f.write("\n")
+                    lastLayer = cell[0]
             f.write("0\n")
 
 if __name__ == "__main__":

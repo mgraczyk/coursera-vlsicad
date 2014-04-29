@@ -19,7 +19,8 @@ dVects = np.array((
         (0,1,0),
         (0,0,1),
         (0,-1,0),
-        (0,0,-1)),
+        (0,0,-1),
+        (1,0,0)),
         dtype=np.int8)
 directions = np.array(tuple(range(len(dVects))), dtype=np.uint8)
 
@@ -32,42 +33,49 @@ def trace_backward(predInv, source, dest):
     while not (cur == source).all():
         route.append(cur)
         cur = cur - dVects[predInv[tuple(cur)]]
+        cur[0] = cur[0] % 2
 
     route.append(source)
     return tuple(map(tuple, reversed(route)))
 
 def route_one(source, dest, costs, visited, bendp, viap):
     # Store (cost, direction, layer, x, y) in the queue
-    # TODO: Can we use np.array here?
-    oset = [(costs[tuple(source)], None, tuple(source))]
+    oset = [(costs[tuple(source)], tuple(source), None)]
     heapq.heapify(oset)
 
     predInv = np.zeros(costs.shape, dtype=np.uint8)
 
+    # Unblock source and target
+    visited[tuple(source)] = 0
+    visited[tuple(dest)] = 0
+
     while oset:
         u = heapq.heappop(oset)
-        cost, prevD, cur = u
-        #print("considering {}".format(cur))
+        cost, cur, prevD = u
 
-        for pred in directions:
-            if pred == prevD:
-                continue
-
-            dv = dVects[pred]
-            neigh = (cur[0] + dv[0], cur[1] + dv[1], cur[2] + dv[2])
-            #print("visiting {}".format(neigh))
+        for nPred in directions:
+            dv = dVects[nPred]
+            neigh = ((cur[0] + dv[0]) % 2, cur[1] + dv[1], cur[2] + dv[2])
 
             if visited[neigh]:
                 continue
 
             visited[neigh] = visitMark
-            predInv[neigh] = pred
+            predInv[neigh] = nPred
 
             if (neigh == dest).all():
                 print("Routed net {} -> {}".format(source, dest))
                 return trace_backward(predInv, source, dest)
             else:
-                heapq.heappush(oset, (cost + costs[neigh], pred, neigh))
+                extraCost = costs[neigh] + viap*dv[0]
+                
+                if prevD != 4 and nPred != 4:
+                    extraCost += bendp*(prevD != nPred)
+
+                # A*
+                distance = np.absolute(dest - neigh)
+                extraCost += (viap*distance[0] + distance[1] + distance[2]) - 2
+                heapq.heappush(oset, (cost + extraCost, neigh, nPred))
 
     print("Failed to route net {} -> {}".format(source, dest))
     return []
