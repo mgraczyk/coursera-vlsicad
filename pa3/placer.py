@@ -14,7 +14,7 @@ from itertools import chain
 
 import netlist
 
-def getVars(gates, pads, weights, start, end, corner, width):
+def getVars(gates, pads, weights, start, end, botL, topR):
     sz = end - start
 
     # Create the C matrix
@@ -33,13 +33,17 @@ def getVars(gates, pads, weights, start, end, corner, width):
 
     C[np.diag_indices_from(C)] -= np.sum(C, 1)
 
-    padNets = np.array([p[0] for p in pads])
+    padNets = [p[0] for p in pads]
+   
+    padNets = np.array(padNets)
     padWeights = weights[padNets]
-    padX = np.array([p[1] for p in pads])
-    padY = np.array([p[2] for p in pads])
+
+    padX = np.array([max(min(p[1], topR[0]), botL[0]) for p in pads])
+    padY = np.array([max(min(p[2], topR[1]), botL[1]) for p in pads])
 
     padWeightedX = padWeights*padX
     padWeightedY = padWeights*padY
+
 
     for g in range(start, end):
         isect = np.intersect1d(gates[g], padNets, assume_unique=True)
@@ -51,8 +55,8 @@ def getVars(gates, pads, weights, start, end, corner, width):
 
     return coo_matrix(-C), bx, by
 
-def solveSq(gates, pads, weights, start, end):
-    A, bx, by = getVars(gates, pads, weights, start, end)
+def solveSq(gates, pads, weights, start, end, botL, topR):
+    A, bx, by = getVars(gates, pads, weights, start, end, botL, topR)
 
     csrA = A.tocsr()
     x = spsolve(csrA, bx)
@@ -61,29 +65,42 @@ def solveSq(gates, pads, weights, start, end):
     return x,y
 
 def solve(gates, N, pads):
+    """ 
+        gates are the gates to place.
+        N is the number of nets.
+        pads are the positions of the pads
+    """
+
     gates = tuple(np.array(g, dtype=np.int_) - 1 for g in gates)
     pads = tuple((np.int_(p[0]) - 1, p[1], p[2]) for p in pads)
 
-    weights = np.zeros(N, dtype=np.float64)
-   
-    for n in range(N):
-        for g in range(len(gates)):
-            if n in gates[g]:
-                weights[n] += 1
-        for p in range(len(pads)):
-            if n in pads[p]:
-                weights[n] += 1
-    
-    weights -= 1
-    weights = 1/weights
+    weights = np.zeros(N, )
+  
+    allConnections = np.array(tuple(chain(chain.from_iterable(gates), (p[0] for p in pads))))
+    weights = np.float64(1.0)/(np.bincount(allConnections) - 1)
 
-    x,y = solveSq(gates, pads, weights, 0, len(gates))
-    
+    x,y = solveSq(gates, pads, weights, 0, len(gates), (0,0), (100,100))
+    xOrder = np.argsort(x)
+    yOrder = np.argsort(y)
+
     gates = tuple(map(itemgetter(1),
             sorted(enumerate(gates), key=lambda i:x[i[0]])))
 
-
     return zip(x,y)
+
+def solve_fake(gates, N, pads):
+    x = []
+    xP = 1.0/16
+
+    rem = len(gates)
+    while rem > 0:
+      x.append(100*xP)
+      xP += 1.0/8
+      if xP > 1.0:
+        xP = 1.0/16
+      rem -= 1
+
+    return zip(x,x)
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2:
